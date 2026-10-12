@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>六年级华文《姓氏趣谈》— 百家姓趣味挑战</title>
+<style>
+body{font-family:"Microsoft JhengHei","PingFang TC","Noto Sans CJK TC",sans-serif;background:#f7f4ed;margin:0;color:#2f2f2f}
+.wrap{max-width:900px;margin:0 auto;padding:24px}
+.card{background:white;border-radius:22px;padding:28px;box-shadow:0 8px 28px #00000012}
+h1{margin:0 0 8px;font-size:30px}.sub{color:#666;margin-bottom:22px}
+.badge{display:inline-block;padding:6px 12px;border-radius:99px;background:#eee7d7;margin:3px;font-size:14px}
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.progress{height:10px;background:#eee;border-radius:10px;overflow:hidden}.bar{height:100%;width:0;background:#333;transition:.3s}
+.q{font-size:25px;font-weight:700;margin:24px 0 10px}.hint{color:#777;margin-bottom:15px}
+.options{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+button{border:0;border-radius:14px;padding:15px 14px;font-size:18px;cursor:pointer;background:#f0ede5}
+button:hover{transform:translateY(-1px)}button.correct{background:#dff2df}button.wrong{background:#f8dddd}
+.next{margin-top:18px;background:#222;color:#fff;width:100%}
+.result{text-align:center}.score{font-size:48px;font-weight:800;margin:15px}
+.small{font-size:14px;color:#777;line-height:1.7}
+@media(max-width:650px){.options{grid-template-columns:1fr}.q{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<div class="top">
+  <div><h1>「姓」趣横生！百家姓挑战赛</h1>
+  <div class="sub">六年级华文 · 单元四《姓氏趣谈》· 个人闯关</div></div>
+  <div><span class="badge">20题</span><span class="badge">每题5分</span><span class="badge">满分100</span></div>
+</div>
+<div class="progress"><div id="bar" class="bar"></div></div>
+<div id="game"></div>
+</div></div>
+
+<script>
+const qs=[
+{q:"「仇」作姓氏时，读音是？",o:["chóu","qiú","jiū","qū"],a:1,h:"提示：不是“仇恨”的 chóu。"},
+{q:"「区」作姓氏时，通常读作？",o:["qū","ōu","ǒu","qù"],a:1,h:"提示：广东、广西等地较常见。"},
+{q:"「单」作姓氏时，常见读音是？",o:["dān","shàn","chán","tán"],a:1,h:"提示：不是“单独”的 dān。"},
+{q:"「解」作姓氏时，读作？",o:["jiě","jiè","xiè","jiǎi"],a:2,h:"提示：想一想“解缙”的姓。"},
+{q:"「查」作姓氏时，读作？",o:["chá","zhā","zhǎ","chà"],a:1,h:"提示：作姓氏时与“检查”的 chá 不同。"},
+{q:"「盖」作姓氏时，常读？",o:["gài","gě","hé","kǎi"],a:1,h:"提示：山东等地可见此姓。"},
+{q:"「逯」这个少见姓氏的普通话读音是？",o:["lù","lǜ","lǔ","luò"],a:0,h:"提示：与“陆”同音。"},
+{q:"「甄」作姓氏时，读作？",o:["zhēn","jiān","zhèn","zēn"],a:0,h:"提示：甄嬛的“甄”。"},
+{q:"「禹」属于哪一种情况？",o:["只可以作名字","可以作为姓氏","只可以作地名","一定是复姓"],a:1,h:"提示：大禹的“禹”也可作姓。"},
+{q:"「尉迟」属于哪一种姓氏？",o:["单姓","复姓","外国姓氏","不能作姓氏"],a:1,h:"提示：两个汉字组成一个姓。"},
+{q:"下列哪一个是复姓？",o:["欧阳","陈","林","黄"],a:0,h:"提示：由两个字组成。"},
+{q:"下列哪一个也是著名复姓？",o:["诸葛","赵","钱","孙"],a:0,h:"提示：诸葛亮的“诸葛”。"},
+{q:"「司马」属于？",o:["单姓","复姓","字辈","名"],a:1,h:"提示：司马光的姓。"},
+{q:"「上官」属于？",o:["复姓","单姓","别名","族名"],a:0,h:"提示：上官婉儿的姓。"},
+{q:"「东方」作为姓氏，属于？",o:["单姓","复姓","名字","谥号"],a:1,h:"提示：两个字组成。"},
+{q:"下列哪一个繁体字与简体字「邓」对应？",o:["鄧","鄭","鄧","鄧"],a:0,h:"提示：找出正确的传统字形。"},
+{q:"下列哪一组全部是繁体字姓氏？",o:["趙、錢、孫、李","赵、錢、孫、李","趙、钱、孫、李","趙、錢、孙、李"],a:0,h:"提示：观察每一个字是否为繁体。"},
+{q:"「龔」的简体字是？",o:["贡","巩","龚","共"],a:2,h:"提示：香港、台湾常使用这个繁体字。"},
+{q:"「蕭」的简体字是？",o:["肖","萧","箫","潇"],a:1,h:"提示：这是一个常见姓氏的繁体写法。"},
+{q:"学习《姓氏趣谈》后，认识姓氏最重要的意义之一是？",o:["只为了记住冷知识","了解家族、血缘与文化传承","判断谁比较有钱","把所有姓氏都改成复姓"],a:1,h:"提示：回到课文“寻根溯源”的主题。"}
+];
+
+let i=0,score=0,locked=false;
+const game=document.getElementById("game"),bar=document.getElementById("bar");
+
+function render(){
+ locked=false;
+ bar.style.width=(i/qs.length*100)+"%";
+ const x=qs[i];
+ game.innerHTML=`<div class="q">${i+1}. ${x.q}</div>
+ <div class="hint">${x.h}</div>
+ <div class="options">${x.o.map((v,n)=>`<button onclick="answer(${n})">${v}</button>`).join("")}</div>
+ <button class="next" id="next" style="display:none" onclick="nextQ()">${i===qs.length-1?"查看成绩":"下一题 →"}</button>`;
+}
+function answer(n){
+ if(locked)return; locked=true;
+ const x=qs[i], bs=document.querySelectorAll(".options button");
+ bs[n].classList.add(n===x.a?"correct":"wrong");
+ if(n===x.a)score+=5; else bs[x.a].classList.add("correct");
+ document.getElementById("next").style.display="block";
+}
+function nextQ(){
+ i++;
+ if(i>=qs.length){bar.style.width="100%"; result(); return;}
+ render();
+}
+function result(){
+ let level=score>=90?"姓氏小达人 🏆":score>=75?"文化探索家 🌟":score>=60?"寻根小侦探 🔎":"继续挑战，再认识一些有趣姓氏吧！💪";
+ game.innerHTML=`<div class="result"><h2>闯关完成！</h2><div class="score">${score} / 100</div><h3>${level}</h3>
+ <p class="small">建议：把答错的姓氏抄写一次，并查一查它的读音或来源。</p>
+ <button class="next" onclick="i=0;score=0;render()">再挑战一次 ↻</button></div>`;
+}
+render();
+</script>
+</body>
+</html>
